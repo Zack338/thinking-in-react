@@ -10,25 +10,25 @@ export default function FilterableProductTable({ products }) {
     filterText,
     inStockOnly,
     sortBy,
-    maxPrice,
+    priceLimit,
     setFilterText,
     setInStockOnly,
     setSortBy,
-    setMaxPrice,
+    setPriceLimit,
     clearFilters,
   } = useFilters();
 
   return (
     <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-8 border-2 border-green-200">
-      <SearchBar
+      <FilterBar
         filterText={filterText}
         inStockOnly={inStockOnly}
         sortBy={sortBy}
-        maxPrice={maxPrice}
+        maxPrice={priceLimit}
         onFilterTextChange={setFilterText}
         onInStockOnlyChange={setInStockOnly}
         onSortByChange={setSortBy}
-        onMaxPriceChange={setMaxPrice}
+        onMaxPriceChange={setPriceLimit}
         onClearFilters={clearFilters}
       />
       <ProductTable
@@ -36,7 +36,7 @@ export default function FilterableProductTable({ products }) {
         filterText={filterText}
         inStockOnly={inStockOnly}
         sortBy={sortBy}
-        maxPrice={maxPrice}
+        maxPrice={priceLimit}
       />
     </div>
   );
