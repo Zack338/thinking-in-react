@@ -1,6 +1,5 @@
 import { useState } from "react";
-
-import { HIGHEST_PRICE  } from "../constants";
+import { HIGHEST_PRICE } from "../constants";
 
 export default function useFilters() {
   const [filterText, setFilterText] = useState("");
@@ -19,11 +18,11 @@ export default function useFilters() {
     filterText,
     inStockOnly,
     sortBy,
-    priceLimit,
+    maxPrice,
     setFilterText,
     setInStockOnly,
     setSortBy,
-    setPriceLimit,
+    setMaxPrice,
     clearFilters,
   };
 }
