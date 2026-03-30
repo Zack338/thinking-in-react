@@ -1,4 +1,4 @@
-import { MAX_PRODUCT_PRICE } from "../constants";
+import { HIGHEST_PRICE } from "../constants";
 import { generateEmptyProductMessage, parsePrice } from "../lib";
 import useFilters from "./use-filters";
 
@@ -10,25 +10,25 @@ export default function FilterableProductTable({ products }) {
     filterText,
     inStockOnly,
     sortBy,
-    maxPrice,
+    priceLimit,
     setFilterText,
     setInStockOnly,
     setSortBy,
-    setMaxPrice,
+    setPriceLimit,
     clearFilters,
   } = useFilters();
 
   return (
     <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-8 border-2 border-green-200">
-      <SearchBar
+      <FilterBar
         filterText={filterText}
         inStockOnly={inStockOnly}
         sortBy={sortBy}
-        maxPrice={maxPrice}
+        priceLimit={priceLimit}
         onFilterTextChange={setFilterText}
         onInStockOnlyChange={setInStockOnly}
         onSortByChange={setSortBy}
-        onMaxPriceChange={setMaxPrice}
+        onPriceLimitChange={setPriceLimit}
         onClearFilters={clearFilters}
       />
       <ProductTable
@@ -36,7 +36,7 @@ export default function FilterableProductTable({ products }) {
         filterText={filterText}
         inStockOnly={inStockOnly}
         sortBy={sortBy}
-        maxPrice={maxPrice}
+        priceLimit={priceLimit}
       />
     </div>
   );
@@ -44,9 +44,6 @@ export default function FilterableProductTable({ products }) {
 
 /**
  * Renders a downward-pointing chevron SVG icon.
- * Commonly used for dropdown or disclosure indicators.
- *
- * It's taken from https://heroicons.com/
  */
 function ChevronDownIcon({ className }) {
   return (
@@ -118,12 +115,12 @@ function ProductRow({ product }) {
  * @param {string} filterText
  * @param {boolean} inStockOnly
  * @param {string} sortBy
- * @param {number} maxPrice
+ * @param {number} priceLimit
  */
-function ProductTable({ products, filterText, inStockOnly, sortBy, maxPrice }) {
+function ProductTable({ products, filterText, inStockOnly, sortBy, priceLimit }) {
   const filteredAndSorted = products
     .filter((product) => {
-      const matchesPrice = parsePrice(product.price) <= maxPrice;
+      const matchesPrice = parsePrice(product.price) <= priceLimit;
       const matchesSearch = product.name
         .toLowerCase()
         .includes(filterText.toLowerCase());
@@ -133,30 +130,19 @@ function ProductTable({ products, filterText, inStockOnly, sortBy, maxPrice }) {
     })
     .sort((a, b) => {
       if (sortBy === "category")
-        // First by category, then by name within category
         return a.category !== b.category
           ? a.category.localeCompare(b.category)
           : a.name.localeCompare(b.name);
 
       if (sortBy === "name") return a.name.localeCompare(b.name);
 
-      // Price sorting
       const priceA = parsePrice(a.price);
       const priceB = parsePrice(b.price);
       return sortBy === "price-low" ? priceA - priceB : priceB - priceA;
     });
 
-  /**
-   * Using `flatMap` to insert category headers.
-   *
-   * For each product, we check if it's the first product or if its category
-   * differs from the previous product's category. If so, we insert a
-   * `ProductCategoryRow` before the `ProductRow`. Otherwise, we just insert
-   * the `ProductRow`.
-   */
   const rows = filteredAndSorted.flatMap((product, index, products) => {
     const prevProduct = products[index - 1];
-
     return !prevProduct || product.category !== prevProduct.category
       ? [
           <ProductCategoryRow
@@ -198,8 +184,8 @@ function ProductTable({ products, filterText, inStockOnly, sortBy, maxPrice }) {
             {generateEmptyProductMessage(
               filterText,
               inStockOnly,
-              maxPrice,
-              MAX_PRODUCT_PRICE
+              priceLimit,
+              HIGHEST_PRICE
             )}
           </p>
           <p className="text-sm">Try adjusting your filters</p>
@@ -213,37 +199,34 @@ function ProductTable({ products, filterText, inStockOnly, sortBy, maxPrice }) {
  * @param {string} filterText
  * @param {boolean} inStockOnly
  * @param {string} sortBy
- * @param {number} maxPrice
+ * @param {number} priceLimit
  * @param {(text: string) => void} onFilterTextChange
  * @param {(checked: boolean) => void} onInStockOnlyChange
  * @param {(sort: string) => void} onSortByChange
- * @param {(price: number) => void} onMaxPriceChange
+ * @param {(price: number) => void} onPriceLimitChange
  * @param {() => void} onClearFilters
  */
-function SearchBar({
+function FilterBar({
   filterText,
   inStockOnly,
   sortBy,
-  maxPrice,
+  priceLimit,
   onFilterTextChange,
   onInStockOnlyChange,
   onSortByChange,
-  onMaxPriceChange,
+  onPriceLimitChange,
   onClearFilters,
 }) {
   const hasActiveFilters =
-    filterText ||
-    inStockOnly ||
-    sortBy !== "category" ||
-    maxPrice < MAX_PRODUCT_PRICE;
+    filterText || inStockOnly || sortBy !== "category" || priceLimit < HIGHEST_PRICE;
 
   return (
     <form className="mb-6 space-y-4">
-      <label htmlFor="search-input" className="sr-only">
-        Search products
+      <label htmlFor="filter-input" className="sr-only">
+        Filter products
       </label>
       <input
-        id="search-input"
+        id="filter-input"
         type="search"
         value={filterText}
         placeholder="Search fresh produce..."
@@ -276,15 +259,15 @@ function SearchBar({
             htmlFor="price-slider"
             className="block text-sm font-medium text-green-800 mb-2"
           >
-            Max price: ${maxPrice}
+            Max price: ${priceLimit}
           </label>
           <input
             id="price-slider"
             type="range"
             min="1"
-            max={MAX_PRODUCT_PRICE}
-            value={maxPrice}
-            onChange={(e) => onMaxPriceChange(Number(e.target.value))}
+            max={HIGHEST_PRICE}
+            value={priceLimit}
+            onChange={(e) => onPriceLimitChange(Number(e.target.value))}
             className="w-full h-2 bg-green-200 rounded-lg appearance-none cursor-pointer accent-green-600"
           />
         </div>
@@ -316,3 +299,4 @@ function SearchBar({
     </form>
   );
 }
+

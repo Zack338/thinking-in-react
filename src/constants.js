@@ -1,6 +1,6 @@
-import products from "./db.js";
-import { parsePrice } from "./lib.js";
+import ITEMS from "./db.js";
+import { parseCost } from "./lib.js";
 
-export const MAX_PRODUCT_PRICE = Math.max(
-  ...products.map((p) => parsePrice(p.price))
+export const HIGHEST_ITEM_COST = Math.max(
+  ...ITEMS.map((item) => parseCost(item.cost))
 );
